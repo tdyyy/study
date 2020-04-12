@@ -2,7 +2,6 @@ package com.thread;
 
 
 import java.util.List;
-import java.util.Timer;
 import java.util.stream.*;
 import static java.util.stream.LongStream.*;
 import java.io.*;
@@ -18,12 +17,12 @@ public class ParallelPrime {
         Timer timer = new Timer();
         List<String> primes =
                 iterate(2, i -> i + 1)
-                        .parallel()              // [1]
+//                        .parallel()              // [1]
                         .filter(ParallelPrime::isPrime)
                         .limit(COUNT)
                         .mapToObj(Long::toString)
                         .collect(Collectors.toList());
-//        System.out.println(timer.duration());
+        System.out.println(timer.duration());
         Files.write(Paths.get("primes.txt"), primes, StandardOpenOption.CREATE);
     }
 }
