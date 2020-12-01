@@ -11,7 +11,9 @@ redis
     分布式：
         集群：
             配置：slaveof masterip masterport
-            原理 把n个节点通过槽（）来划分
+            原理 把n个节点通过槽（16384个）来划分 每个节点之间互相通信、每个节点配置备用节点
+            优势 扩容简单 空间利用率大
+            容灾：当其他半数master ping一个master无响应时认为该节点宕机 从该节点的从节点里选举一个当做主节点
         主从：
             同步：slave连接master时进行全量同步 s向m发送一个同步指令m开始生成数据文件同时记录缓冲区新指令
                  数据文件生成完毕后发送给s，s同步完成后m再向s发送缓冲的指令完成第二轮同步，之后的增量同步则是每条指令发送给master执行m都会向s发送一遍
@@ -31,8 +33,6 @@ redis
                 高可用性
                     节点监控 以一定间隔向集群所有节点发送
                     提供选举机制 master宕机后由哨兵选举一个新的master
-
-
     问题：
         缓存穿透 一直请求一个不存在的数据 导致每次都会绕过缓存直接读取数据库
 
@@ -40,3 +40,12 @@ redis
 
         缓存雪崩 大批缓存数据同时到期 大量请求直接打入数据库
         脑裂 集群模式下由于网络原因导致master节点与从节点连接断开 此时集群会重新选举出一个master，网络原因恢复时则出现两个master，会造成数据不安全
+    指令
+        redis-cli --cluster create 127.0.0.1:6380 127.0.0.1:6381 127.0.0.1:6382
+        redis-cli --cluster add-node --cluster-slave --cluster-master-id d3cb8f5a393e82daaa5c0e874082053c291e883c 127.0.0.1:6383 127.0.0.1:6380
+    配置
+        port 6380
+　　　　cluster-enabled yes
+　　　　cluster-config-file nodes.conf
+　　　　cluster-node-timeout 5000
+　　　　appendonly yes
