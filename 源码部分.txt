@@ -1,0 +1,138 @@
+源码部分
+    ThreadPoolExcutor
+        构成：
+            线程池信息 atmocint ctl
+                状态 int的前3位
+                    running运行:110
+                        接受新任务 处理队列任务
+                    shutduwn关闭:000
+                        不接受新任务 处理队列任务
+                    stop终止:001
+                        不接受新任务 处理队列任务 中断正在执行的任务
+                    tidying整理:010
+                        当所有任务都执行完毕 工作线程数为0时调用terminated()方法
+                    terminated结束:100
+                        terminated()方法调用结束
+                工作线程数 int的后29位 约5亿 不够就换成long
+            核心线程数
+                当前工作线程数少于核心线程数时提交任务 能新增一个工作线程并且执行的数量
+            最大线程数
+                当前工作线程数大于核心线程数并且队列已满时最大的工作线程数量
+            队列
+                有界队列
+                无解队列
+
+            最大等待时间
+                队列任务执行完毕后若工作线程数量超过核心线程数则设置延时从队列获取任务 超时后移除该工作线程
+            负载策略(使用有界队列&有界队列满了&线程数达到最大线程数)
+                丢弃当前任务
+                异常
+                在当前线程处理
+                丢弃最旧的任务
+            代理线程类 Worker
+                继承aqs实现runable内部有Thread Thread 内容为当前worker的run()
+        方法：
+            excutor：
+                提交任务
+            addWorker:
+                增加工作线程
+            runWorker:
+                执行任务
+            getTask():
+                从队列获取任务
+    String
+        构成
+            内容 final Char[]
+            长度 int length
+        方法
+            indexOf()
+                返回符合描述的下标
+            charAt()
+                返回符合描述的字符
+            split()
+                字符串分割 如果分割符处于头尾则不计入
+            replace()
+                替换第字符或者字符串
+            replaceAll()
+                支持正则 如果不是表达式则与replace效果一样
+            equals()
+                比较字符数组值
+            join()
+                拼接字符串 底层实现使用StringBuilder 线程不安全
+    StringBuilder
+        构成：
+            数据 char[]
+            长度 int
+        方法：
+            append()
+                拼接 如果是对象则拼接对象的toString()
+            replace()
+                替换 需要指定位置
+            insert()
+                指定位置插入元素
+            delete()
+                删除 会缩容
+        扩容：Arrays.copyOf(); 按需扩容 拼多长加多少
+        拼接: System.arrayCopy();
+        拓展
+            System.arrayCopy() 只能操作已有数组 （复制）
+            Arrays.copyOf();创建新数组 底层使用 System.arrayCopy() （复制，截取，扩容）
+    StringBuffer
+        与StringBuilder一致
+        操作数组的方法都加上了synchronized
+    ArrayList
+        构成
+            object数组 默认大小 10
+            长度size
+        方法
+            add():添加元素 可指定位置
+            remove():移除元素
+            set():设置元素 修改
+            get():获取
+            clear():清空
+            sort();排序 comparator
+            iterator():迭代器
+        扩容 半数扩容
+    LinkdList
+        构成
+            node节点 底层结构为双向链表
+            大小 size
+        方法
+            add(),addFrist(),addLast() 默认尾插
+            getFirst(),getLast()
+            removeFirst(),removeLast()
+    HashMap
+        构成
+            node节点 单向列表
+            键值对
+            treeNode 红黑树
+            节点数组table
+        方法
+            带参构造：
+                容量需要为2的幂方 带参不够时自动转换 new HashMap(7) ->new HashMap(8)
+                数组并不是调用构造方法创建 而是在resize的时候创建
+            resize()：
+                核心方法 hashmap的扩容
+                扩容触发条件
+                    当前数组未初始化
+                    当前数组元素/容量大于负载系数
+                扩容机制为2倍扩容
+                扩容完成后需要rehash迁移元素
+            结构转换 长度大于8转树 小于6转链表
+    TreeMap
+        构成
+            红黑树
+        方法
+            containsKey() 是否包含key
+            
+    ConcurrentHashMap
+        构成
+            红黑树
+        方法
+            inittable() private
+                初始化使用，用volitale 记录状态 cas保证安全
+            putVal() private
+                添加元素 哈希桶为空时不加锁 
+                不为空时
+    ThreadLocal
+        
